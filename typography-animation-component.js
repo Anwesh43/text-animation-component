@@ -45,6 +45,7 @@ class TypographyAnimationComponent extends HTMLElement {
     }
     connectedCallback() {
         this.render()
+        CursorBlinker.startBlinking(this)
     }
 }
 class AnimatedTextWithCursor {
@@ -113,5 +114,14 @@ class Cursor {
     }
     blink() {
         this.i++
+    }
+}
+class CursorBlinker {
+    static startBlinking(component) {
+        var worker = new Worker("cursor-blinker-worker.js")
+        worker.onmessage = () =>{
+            component.render()
+            component.blinkCursor()
+        }
     }
 }
