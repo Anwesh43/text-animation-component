@@ -7,6 +7,24 @@ class TypographyAnimationComponent extends HTMLElement {
         this.text = this.getAttribute('text')
         shadow.appendChild(this.div)
     }
+    update() {
+        if(this.animatedTextWithCursor) {
+            this.animatedTextWithCursor.update()
+        }
+    }
+    startUpdating() {
+        if(this.animatedTextWithCursor) {
+            this.animatedTextWithCursor.startUpdating()
+        }
+    }
+    blinkCursor() {
+        if(this.animatedTextWithCursor) {
+            this.animatedTextWithCursor.blinkCursor()
+        }
+    }
+    stopped() {
+        return this.animatedTextWithCursor && this.animatedTextWithCursor.stopped()
+    }
     render() {
         const canvas = document.createElement('canvas')
         var context = canvas.getContext('2d')
@@ -17,6 +35,10 @@ class TypographyAnimationComponent extends HTMLElement {
         canvas.height = canvasH
         this.div.style.width = w
         this.div.style.height = h
+        if(!this.animatedTextWithCursor) {
+            this.animatedTextWithCursor = new AnimatedTextWithCursor(this.text)
+        }
+        this.animatedTextWithCursor.draw(context,w/4,canvasH/2)
         context = canvas.getContext('2d')
         context.font = context.font.replace(/\d{2}/,canvasH/3)
         this.div.style.background = `url(${canvas.toDataURL()})`
@@ -63,6 +85,9 @@ class TypographyAnimationComponent extends HTMLElement {
                     this.dir = 1
                 }
             }
+        }
+        stopped() {
+            return this.dir == 0
         }
     }
     class Cursor {
