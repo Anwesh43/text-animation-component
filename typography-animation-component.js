@@ -65,6 +65,7 @@ class AnimatedTextWithCursor {
         this.cursor.x = context.measureText(msg).width
         context.fillStyle = 'black'
         context.fillText(msg,x,y)
+        this.cursor.draw(context)
     }
     update() {
         if((this.index < this.text.length-1 && this.dir == 1) || (this.index>0 && this.dir == -1)) {
@@ -101,12 +102,12 @@ class Cursor {
     }
     draw(context) {
         context.strokeStyle = 'black'
-        context.strokeWidth = h/80
+        context.strokeWidth = 10
         context.save()
         context.translate(this.x,this.y)
         context.beginPath()
-        context.moveTo(0,0)
-        context.lineTo(0,this.h)
+        context.moveTo(0,-this.h/2)
+        context.lineTo(0,this.h/2)
         if(this.i % 2 == 0) {
             context.stroke()
         }
@@ -114,6 +115,7 @@ class Cursor {
     }
     blink() {
         this.i++
+        console.log(this.i)
     }
 }
 class CursorBlinker {
@@ -125,3 +127,24 @@ class CursorBlinker {
         }
     }
 }
+class TextAnimator  {
+    constructor(component) {
+        this.component = component
+        this.animated = false
+    }
+    startAnimating() {
+        if(!this.animated) {
+            this.animated = true
+            this.component.startUpdating()
+            const interval = setInterval(()=>{
+                this.component.render()
+                this.component.update()
+                if(this.component.stopped()) {
+                    clearInterval(interval)
+                    this.animated = false
+                }
+            },50)
+        }
+    }
+}
+customElements.define('type-text-comp',TypographyAnimationComponent)
