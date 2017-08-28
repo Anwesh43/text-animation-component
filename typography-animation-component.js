@@ -28,23 +28,27 @@ class TypographyAnimationComponent extends HTMLElement {
     render() {
         const canvas = document.createElement('canvas')
         var context = canvas.getContext('2d')
-        const canvasH = h/12
-        context.font = context.font.replace(/\d{2}/,canvasH/3)
+        const canvasH = h/8
+        context.font = context.font.replace(/\d{2}/,2*canvasH/3)
         const w = 2*(context.measureText(this.text).width)
         canvas.width = w
         canvas.height = canvasH
         this.div.style.width = w
-        this.div.style.height = h
+        this.div.style.height = canvasH
         if(!this.animatedTextWithCursor) {
             this.animatedTextWithCursor = new AnimatedTextWithCursor(this.text)
         }
-        this.animatedTextWithCursor.draw(context,w/4,canvasH/2)
         context = canvas.getContext('2d')
-        context.font = context.font.replace(/\d{2}/,canvasH/3)
+        context.font = context.font.replace(/\d{2}/,2*canvasH/3)
+        this.animatedTextWithCursor.draw(context,w/4,canvasH/2,2*canvasH/3)
         this.div.style.background = `url(${canvas.toDataURL()})`
     }
     connectedCallback() {
         this.render()
+        this.textAnimator = new TextAnimator(this)
+        this.div.onclick = ()=>{
+            this.textAnimator.startAnimating()
+        }
         CursorBlinker.startBlinking(this)
     }
 }
@@ -62,15 +66,20 @@ class AnimatedTextWithCursor {
         if(!this.cursor) {
             this.cursor = new Cursor(x,y-fontSize/2,fontSize)
         }
-        this.cursor.x = context.measureText(msg).width
+        this.cursor.x = x+context.measureText(msg).width
         context.fillStyle = 'black'
         context.fillText(msg,x,y)
         this.cursor.draw(context)
     }
     update() {
-        if((this.index < this.text.length-1 && this.dir == 1) || (this.index>0 && this.dir == -1)) {
+        if((this.index < this.text.length && this.dir == 1) || (this.index>=0 && this.dir == -1)) {
+            this.index += this.dir
             if(this.index == this.text.length || this.index == 0) {
                 this.dir = 0
+                if(this.index < 0) {
+                    this.index = 0
+                }
+                console.log(this.dir)
             }
         }
     }
