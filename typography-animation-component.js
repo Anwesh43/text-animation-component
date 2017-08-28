@@ -46,72 +46,72 @@ class TypographyAnimationComponent extends HTMLElement {
     connectedCallback() {
         this.render()
     }
-    class AnimatedTextWithCursor {
-        constructor(text) {
-            this.text = text
-            this.index = 0
-            this.dir = 0
+}
+class AnimatedTextWithCursor {
+    constructor(text) {
+        this.text = text
+        this.index = 0
+        this.dir = 0
+    }
+    draw(context,x,y,fontSize) {
+        var msg = ""
+        for(var i=0;i<this.index;i++) {
+            msg += this.text.charAt(i)
         }
-        draw(context,x,y,fontSize) {
-            var msg = ""
-            for(var i=0;i<this.index;i++) {
-                msg += this.text.charAt(i)
-            }
-            if(!this.cursor) {
-                this.cursor = new Cursor(x,y-fontSize/2,fontSize)
-            }
-            this.cursor.x = context.measureText(msg).width
-            context.fillStyle = 'black'
-            context.fillText(msg,x,y)
+        if(!this.cursor) {
+            this.cursor = new Cursor(x,y-fontSize/2,fontSize)
         }
-        update() {
-            if((this.index < this.text.length-1 && this.dir == 1) || (this.index>0 && this.dir == -1)) {
-                if(this.index == this.text.length || this.index == 0) {
-                    this.dir = 0
-                }
+        this.cursor.x = context.measureText(msg).width
+        context.fillStyle = 'black'
+        context.fillText(msg,x,y)
+    }
+    update() {
+        if((this.index < this.text.length-1 && this.dir == 1) || (this.index>0 && this.dir == -1)) {
+            if(this.index == this.text.length || this.index == 0) {
+                this.dir = 0
             }
-        }
-        blinkCursor() {
-            if(this.cursor) {
-                this.cursor.blink()
-            }
-        }
-        startUpdating() {
-            if(this.dir == 0) {
-                if(this.index == this.text.length) {
-                    this.dir = -1
-                }
-                if(this.index == 0) {
-                    this.dir = 1
-                }
-            }
-        }
-        stopped() {
-            return this.dir == 0
         }
     }
-    class Cursor {
-        constructor(x,y,h) {
-            this.x = x
-            this.y = y
-            this.h = h
-            this.i = 0
+    blinkCursor() {
+        if(this.cursor) {
+            this.cursor.blink()
         }
-        draw(context) {
-            context.strokeStyle = 'black'
-            context.strokeWidth = h/80
-            context.save()
-            context.translate(this.x,this.y)
-            context.beginPath()
-            context.moveTo(0,0)
-            context.lineTo(0,this.h)
-            if(this.i % 2 == 0) {
-                context.stroke()
+    }
+    startUpdating() {
+        if(this.dir == 0) {
+            if(this.index == this.text.length) {
+                this.dir = -1
             }
-            context.restore()
+            if(this.index == 0) {
+                this.dir = 1
+            }
         }
-        blink() {
-            this.i++
+    }
+    stopped() {
+        return this.dir == 0
+    }
+}
+class Cursor {
+    constructor(x,y,h) {
+        this.x = x
+        this.y = y
+        this.h = h
+        this.i = 0
+    }
+    draw(context) {
+        context.strokeStyle = 'black'
+        context.strokeWidth = h/80
+        context.save()
+        context.translate(this.x,this.y)
+        context.beginPath()
+        context.moveTo(0,0)
+        context.lineTo(0,this.h)
+        if(this.i % 2 == 0) {
+            context.stroke()
         }
+        context.restore()
+    }
+    blink() {
+        this.i++
     }
 }
